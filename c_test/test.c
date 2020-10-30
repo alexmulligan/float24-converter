@@ -2,22 +2,50 @@
 #include <string.h>
 
 #define APPNAME "FLOAT24_CONVERTER"
+#define ID_HOTKEY 0xABCD
 
 char szAppName[] = APPNAME;
 char szTitle[]   = "FLOAT24 Converter";
 const char *pWindowText;
+const char *pWindowText2;
+const char *pWindowText3;
 
 void CenterWindow(HWND hWnd);
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    switch (message) {
+    static HWND hwndEdit;
+	
+	switch (message) {
         case WM_CREATE:
+			RegisterHotKey(hwnd, ID_HOTKEY, MOD_CONTROL, 0x43);
             CenterWindow(hwnd);
+			
+			hwndEdit = CreateWindowW(L"EDIT", NULL,
+				WS_CHILD|WS_VISIBLE|WS_BORDER,
+				60, 70, 150, 20, hwnd, (HMENU)2, NULL, NULL);
+			
+			CreateWindowW(L"BUTTON", L"Convert",
+				WS_CHILD|WS_VISIBLE,
+				260, 120, 80, 25,
+				hwnd, (HMENU)1, NULL, NULL);
+			
             break;
 
         case WM_DESTROY:
+			UnregisterHotKey(hwnd, ID_HOTKEY);
             PostQuitMessage(0);
             break;
+
+		case WM_COMMAND:
+		{
+			int len = GetWindowTextLengthW(hwndEdit) + 1;
+			wchar_t text[len];
+			
+			GetWindowTextW(hwndEdit, text, len);
+			SetWindowTextW(hwnd, text);
+
+			break;
+		}
 
         case WM_PAINT:
         {
@@ -33,9 +61,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
             SetBkMode(hdc, TRANSPARENT);
             DrawText(hdc, pWindowText, -1, &rc, DT_LEFT);
 
+			GetClientRect(hwnd, &rc);
+			rc.left = 290;
+			rc.top = 70;
+			DrawText(hdc, pWindowText2, -1, &rc, DT_LEFT);
+
+			GetClientRect(hwnd, &rc);
+			rc.left = 380;
+			rc.top = rc.top + 20;
+			DrawText(hdc, pWindowText3, -1, &rc, DT_LEFT);
+
             EndPaint(hwnd, &ps);
             break;
         }
+
+		case WM_HOTKEY:
+		{
+			if ((wParam) == ID_HOTKEY) {
+				MessageBoxW(NULL, L"Ctrl+C Pressed", L"Hotkey", MB_OK);
+			}
+			break;
+		}
 
         default:
             return DefWindowProc(hwnd, message, wParam, lParam);
@@ -49,6 +95,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     HWND hwnd;
 
     pWindowText = "Please enter a decimal number:";
+	pWindowText2 = "->";
+	pWindowText3 = "FLOAT24 Hex Value:";
 
     ZeroMemory(&wc, sizeof wc);
     wc.hInstance     = hInstance;
@@ -65,11 +113,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     hwnd = CreateWindow(
         szAppName,
         szTitle,
-        WS_OVERLAPPEDWINDOW|WS_VISIBLE,
+        WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_VISIBLE,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        500,
-        300,
+        600,
+        200,
         0,
         0,
         hInstance,
@@ -99,8 +147,8 @@ void CenterWindow(HWND hwnd_self) {
     GetClientRect(hwnd_parent, &rc_parent);
     GetWindowRect(hwnd_self, &rw_self);
 
-    xpos = rw_parent.right - 600;
-    ypos = 100;
+    xpos = rw_parent.right - 650;
+    ypos = 50;
 
     SetWindowPos(hwnd_self, NULL, xpos, ypos, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
 }
