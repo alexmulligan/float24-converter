@@ -3,6 +3,7 @@
 
 #define APPNAME "FLOAT24_CONVERTER"
 #define ID_HOTKEY 0xABCD
+#define ID_HOTKEY2 0xABCE
 
 char szAppName[] = APPNAME;
 char szTitle[]   = "FLOAT24 Converter";
@@ -18,6 +19,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	switch (message) {
         case WM_CREATE:
 			RegisterHotKey(hwnd, ID_HOTKEY, MOD_CONTROL, 0x43);
+			RegisterHotKey(hwnd, ID_HOTKEY2, MOD_CONTROL, 0x4A); // !!! Change to "v"
             CenterWindow(hwnd);
 			
 			hwndEdit = CreateWindowW(L"EDIT", NULL,
@@ -33,6 +35,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         case WM_DESTROY:
 			UnregisterHotKey(hwnd, ID_HOTKEY);
+			UnregisterHotKey(hwnd, ID_HOTKEY2);
             PostQuitMessage(0);
             break;
 
@@ -42,7 +45,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			wchar_t text[len];
 			
 			GetWindowTextW(hwndEdit, text, len);
-			SetWindowTextW(hwnd, text);
 
 			break;
 		}
@@ -79,6 +81,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		{
 			if ((wParam) == ID_HOTKEY) {
 				MessageBoxW(NULL, L"Ctrl+C Pressed", L"Hotkey", MB_OK);
+			}
+			if ((wParam) == ID_HOTKEY2) {
+				MessageBoxW(NULL, L"Ctrl+V Pressed", L"Hotkey", MB_OK);
 			}
 			break;
 		}
